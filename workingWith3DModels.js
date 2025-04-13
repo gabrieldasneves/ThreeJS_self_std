@@ -48,14 +48,13 @@ const planeMaterial = new THREE.MeshStandardMaterial({
 });
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2;
-plane.position.y = -1;
+
 plane.receiveShadow = true;
 scene.add(plane);
-
 console.log("Iniciando carregamento do modelo...");
 
 loader.load(
-  "cute_spino.glb",
+  "toon_tree.glb",
   function (gltf) {
     console.log("Modelo carregado com sucesso!");
     const model = gltf.scene;
