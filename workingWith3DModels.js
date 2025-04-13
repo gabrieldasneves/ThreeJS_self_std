@@ -24,20 +24,21 @@ controls.dampingFactor = 0.05;
 controls.minDistance = 2;
 controls.maxDistance = 10;
 
-// Aumenta a intensidade da luz ambiente
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.2);
+hemiLight.position.set(0, 20, 0);
+scene.add(hemiLight);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 scene.add(ambientLight);
 
-// Adiciona mais luzes direcionais
-const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight1.position.set(5, 5, 5);
-directionalLight1.castShadow = true;
-scene.add(directionalLight1);
-
-const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-directionalLight2.position.set(-5, 5, -5);
-directionalLight2.castShadow = true;
-scene.add(directionalLight2);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(3, 10, 5);
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.width = 1024;
+directionalLight.shadow.mapSize.height = 1024;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 50;
+scene.add(directionalLight);
 
 // Adiciona um plano como chão
 const planeGeometry = new THREE.PlaneGeometry(10, 10);
@@ -54,7 +55,7 @@ scene.add(plane);
 console.log("Iniciando carregamento do modelo...");
 
 loader.load(
-  "toon_tree.glb",
+  "cute_spino.glb",
   function (gltf) {
     console.log("Modelo carregado com sucesso!");
     const model = gltf.scene;
