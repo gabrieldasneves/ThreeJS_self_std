@@ -1,4 +1,4 @@
-// Importa o GLTFLoader
+// Remove imports and use global THREE object
 const loader = new THREE.GLTFLoader();
 
 const scene = new THREE.Scene();
@@ -9,16 +9,23 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, 1, 3);
+camera.position.set(0, 2, 5);
 camera.lookAt(0, 0, 0);
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.getElementById("canvas").appendChild(renderer.domElement);
 
+//activates controls with mouse
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.minDistance = 2;
+controls.maxDistance = 10;
+
 // Aumenta a intensidade da luz ambiente
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
 scene.add(ambientLight);
 
 // Adiciona mais luzes direcionais
@@ -35,7 +42,7 @@ scene.add(directionalLight2);
 // Adiciona um plano como chão
 const planeGeometry = new THREE.PlaneGeometry(10, 10);
 const planeMaterial = new THREE.MeshStandardMaterial({
-  color: 0xffffff,
+  color: 0x808080,
   side: THREE.DoubleSide,
 });
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -56,7 +63,7 @@ loader.load(
     const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2 / maxDim; // Aumentou o tamanho do modelo
+    const scale = 1 / maxDim;
     model.scale.set(scale, scale, scale);
 
     // Centraliza o modelo
@@ -68,10 +75,11 @@ loader.load(
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
+        console.log("Mesh encontrado:", child.name);
       }
     });
     scene.add(model);
-    console.log("Modelo adicionado à cena");
+    console.log("Modelo adicionado à cena com posição:", model.position);
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
@@ -83,6 +91,7 @@ loader.load(
 
 function animate() {
   requestAnimationFrame(animate);
+  controls.update();
   renderer.render(scene, camera);
 }
 animate();
