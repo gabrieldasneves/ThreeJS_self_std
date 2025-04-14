@@ -24,11 +24,10 @@ controls.dampingFactor = 0.05;
 controls.minDistance = 2;
 controls.maxDistance = 10;
 
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.2);
-hemiLight.position.set(0, 20, 0);
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444,1)
 scene.add(hemiLight);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -41,9 +40,9 @@ directionalLight.shadow.camera.far = 50;
 scene.add(directionalLight);
 
 // Adiciona um plano como chão
-const planeGeometry = new THREE.PlaneGeometry(10, 10);
+const planeGeometry = new THREE.PlaneGeometry(25, 25);
 const planeMaterial = new THREE.MeshStandardMaterial({
-  color: 0x808080,
+  color: 0xc1936b,
   side: THREE.DoubleSide,
 });
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -54,7 +53,7 @@ scene.add(plane);
 console.log("Iniciando carregamento do modelo...");
 
 loader.load(
-  "toon_tree.glb",
+  "littlefoot.glb",
   function (gltf) {
     console.log("Modelo carregado com sucesso!");
     const model = gltf.scene;
@@ -63,13 +62,13 @@ loader.load(
     const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 1 / maxDim;
+    const scale = 3 / maxDim;
     model.scale.set(scale, scale, scale);
 
     // Centraliza o modelo
     const center = box.getCenter(new THREE.Vector3());
     model.position.sub(center.multiplyScalar(scale));
-    model.position.y = 0;
+    model.position.y = 1.4;
 
     model.traverse((child) => {
       if (child.isMesh) {
@@ -88,6 +87,24 @@ loader.load(
     console.error("Erro ao carregar modelo:", error);
   }
 );
+
+// loader for grass
+loader.load("old_tree.glb", function (gltf) {
+    const gramaModel = gltf.scene;
+  
+    for (let i = 0; i < 20; i++) {
+      const clone = gramaModel.clone();
+      clone.position.set(
+        Math.random() * 20 - 10, 
+        0,
+        Math.random() * 20 - 10 
+      );
+      clone.rotation.y = Math.random() * Math.PI * 2;
+      clone.scale.set(1, 1, 1);
+      scene.add(clone);
+    }
+  });
+  
 
 function animate() {
   requestAnimationFrame(animate);
