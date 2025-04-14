@@ -104,6 +104,24 @@ loader.load("old_tree.glb", function (gltf) {
       scene.add(clone);
     }
   });
+
+
+// loader for fern
+loader.load("fern.glb", function (gltf) {
+    const gramaModel = gltf.scene;
+  
+    for (let i = 0; i < 20; i++) {
+      const clone = gramaModel.clone();
+      clone.position.set(
+        Math.random() * 20 - 10, 
+        0,
+        Math.random() * 20 - 10 
+      );
+      clone.rotation.y = Math.random() * Math.PI * 2;
+      clone.scale.set(0.2, 0.2, 0.2);
+      scene.add(clone);
+    }
+  });
   
 
 function animate() {
