@@ -2,7 +2,31 @@
 const loader = new THREE.GLTFLoader();
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("#000");
+const sky = new THREE.Sky();
+sky.scale.setScalar(10000);
+scene.add(sky);
+
+const sun = new THREE.Vector3();
+const effectController = {
+  turbidity: 10,
+  rayleigh: 2,
+  mieCoefficient: 0.005,
+  mieDirectionalG: 0.8,
+  elevation: 2,
+  azimuth: 180
+};
+
+const uniforms = sky.material.uniforms;
+uniforms['turbidity'].value = effectController.turbidity;
+uniforms['rayleigh'].value = effectController.rayleigh;
+uniforms['mieCoefficient'].value = effectController.mieCoefficient;
+uniforms['mieDirectionalG'].value = effectController.mieDirectionalG;
+
+const phi = THREE.MathUtils.degToRad(90 - effectController.elevation);
+const theta = THREE.MathUtils.degToRad(effectController.azimuth);
+sun.setFromSphericalCoords(1, phi, theta);
+uniforms['sunPosition'].value.copy(sun);
+
 const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
@@ -16,6 +40,15 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.getElementById("canvas").appendChild(renderer.domElement);
+
+// Add window resize handler
+window.addEventListener('resize', onWindowResize, false);
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
 
 //activates controls with mouse
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -92,7 +125,7 @@ loader.load(
 loader.load("old_tree.glb", function (gltf) {
     const gramaModel = gltf.scene;
   
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const clone = gramaModel.clone();
       clone.position.set(
         Math.random() * 20 - 10, 
@@ -106,6 +139,23 @@ loader.load("old_tree.glb", function (gltf) {
   });
 
 
+  loader.load("simple_grass_chunks.glb", function (gltf) {
+    const gramaModel = gltf.scene;
+  
+    const spacing = 2; // Espaçamento entre cada instância
+    const half = 25 / 2;
+  
+    for (let x = -half; x < half; x += spacing) {
+      for (let z = -half; z < half; z += spacing) {
+        const clone = gramaModel.clone();
+        clone.position.set(x + 1 , 0, z + 1);
+        clone.rotation.y = Math.random() * Math.PI * 2;
+        clone.scale.set(3, 0.1, 3);
+        scene.add(clone);
+      }
+    }
+  });
+
 // loader for fern
 loader.load("fern.glb", function (gltf) {
     const gramaModel = gltf.scene;
@@ -118,7 +168,7 @@ loader.load("fern.glb", function (gltf) {
         Math.random() * 20 - 10 
       );
       clone.rotation.y = Math.random() * Math.PI * 2;
-      clone.scale.set(0.2, 0.2, 0.2);
+      clone.scale.set(0.2, 0.3, 0.2);
       scene.add(clone);
     }
   });
